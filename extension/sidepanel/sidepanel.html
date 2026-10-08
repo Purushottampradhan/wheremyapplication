@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>WhereMyApplication</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <header>
+      <strong>WhereMyApplication</strong>
+      <span id="apiLabel">API</span>
+    </header>
+
+    <section id="loginView" class="stack hidden">
+      <p class="muted">Sign in with your web app account</p>
+      <label>Email <input id="email" type="email" /></label>
+      <label>Password <input id="password" type="password" /></label>
+      <label>
+        API base
+        <input
+          id="apiBase"
+          type="url"
+          value="http://127.0.0.1:5080"
+          placeholder="http://127.0.0.1:5080 or https://….onrender.com"
+        />
+      </label>
+      <label>
+        Web app URL
+        <input
+          id="webBase"
+          type="url"
+          value="http://127.0.0.1:5173"
+          placeholder="http://127.0.0.1:5173"
+        />
+      </label>
+      <button id="pingBtn" type="button">Test API connection</button>
+      <button id="loginBtn" class="primary" type="button">Sign in</button>
+    </section>
+
+    <section id="mainView" class="stack hidden">
+      <p id="userLine" class="muted"></p>
+      <p id="pageHint" class="page-hint">Focus a job tab to capture</p>
+      <label>
+        Status when saving
+        <select id="status">
+          <option value="applied">Applied</option>
+          <option value="wishlist">Wishlist / save for later</option>
+          <option value="screening">Screening</option>
+        </select>
+      </label>
+      <label class="check">
+        <input id="easyApply" type="checkbox" checked />
+        Auto-capture LinkedIn Easy Apply success
+      </label>
+      <button id="saveBtn" class="primary" type="button">Save this job</button>
+      <button id="logoutBtn" type="button">Log out</button>
+      <a id="dashboardLink" href="http://127.0.0.1:5173" target="_blank" rel="noreferrer"
+        >Open dashboard</a
+      >
+    </section>
+
+    <p id="message" class="msg"></p>
+    <p class="hint">
+      Keep this side panel open. Click any job tab (LinkedIn, Indeed, Naukri, Greenhouse, company
+      careers, anywhere), then Save. If the page does not look like a job, you will be asked to
+      confirm.
+    </p>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
