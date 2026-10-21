@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -5,42 +6,56 @@ const EXTENSION_ZIP = '/downloads/wheremyapplication-extension.zip';
 
 const FEATURES = [
   {
+    title: 'Job inbox',
+    tone: 'teal',
+    detail:
+      'Connect Gmail, Outlook, Yahoo, or another IMAP mailbox with an app password. Check inbox matches recent mail to a saved job and can move status to screening, interview, offer, or rejected.',
+  },
+  {
     title: 'Chrome side panel capture',
+    tone: 'blue',
     detail:
       'Toolbar icon opens a side panel that stays open. Click any job tab (LinkedIn, Indeed, Naukri, Greenhouse, Lever, Workday, or any career site), then Save. If the page does not look like a job, you confirm before saving.',
   },
   {
     title: 'LinkedIn Easy Apply auto-capture',
+    tone: 'violet',
     detail:
       'Optional toggle in the side panel. When LinkedIn shows that your application was sent, the extension saves the job as Applied (skips duplicates).',
   },
   {
     title: 'AI enrich (Groq)',
+    tone: 'teal',
     detail:
       'On save (or from application detail), Groq fills missing skills, salary, workplace type, employment type, summary, and tags from the job page text.',
   },
   {
     title: 'Resume ↔ JD match score',
+    tone: 'amber',
     detail:
       'Paste resume text on Profile. Open any application → Resume↔JD match for a 0–100 score, matched/missing skills, and suggestions.',
   },
   {
     title: 'Duplicate detection',
+    tone: 'blue',
     detail:
       'Saving the same job URL or company+role again prompts you. Confirm to force-save, or skip if it is already tracked.',
   },
   {
     title: 'Kanban by status',
+    tone: 'violet',
     detail:
       'Drag cards between Wishlist → Applied → Screening → Interview → Offer / Rejected. Status updates immediately.',
   },
   {
     title: 'Salary insights',
+    tone: 'teal',
     detail:
       'Dashboard averages salaries parsed from your saved JDs and links out to Levels.fyi, Glassdoor, and similar sites for market checks.',
   },
   {
     title: 'Dashboard & follow-ups',
+    tone: 'amber',
     detail:
       'Pipeline counts, tips, where-to-apply search links, follow-up dates, and CSV export from Applications.',
   },
@@ -96,7 +111,7 @@ const STEPS = [
       <>
         On a job detail page, choose status (Applied / Wishlist) → <strong>Save this job</strong>.
         Or finish LinkedIn Easy Apply and let auto-capture run. Check{' '}
-        <Link to="/applications">Applications</Link> and <Link to="/">Dashboard</Link>.
+        <Link to="/applications">Applications</Link> and <Link to="/dashboard">Dashboard</Link>.
       </>
     ),
   },
@@ -113,21 +128,33 @@ const STEPS = [
   },
 ];
 
-export function GuidePage() {
+export function GuidePage({ embedded = false }: { embedded?: boolean }) {
   const { user } = useAuth();
+  const [query, setQuery] = useState('');
+  const needle = query.trim().toLowerCase();
+  const features = useMemo(
+    () => FEATURES.filter((item) => !needle || `${item.title} ${item.detail}`.toLowerCase().includes(needle)),
+    [needle]
+  );
+  const steps = useMemo(
+    () => STEPS.filter((item) => !needle || item.title.toLowerCase().includes(needle)),
+    [needle]
+  );
 
   return (
     <div className="guide-page">
+      {embedded ? null : (
       <header className="guide-top">
-        <Link to={user ? '/' : '/login'} className="brand">
-          WhereMyApplication
+        <Link to={user ? '/dashboard' : '/'} className="brand brand-lockup">
+          <img src="/WMA_Icon.png" alt="" width="36" height="36" />
+          <span>WhereMyApplication</span>
         </Link>
         <div className="guide-top-actions">
           <a className="btn primary" href={EXTENSION_ZIP} download>
             Download extension
           </a>
           {user ? (
-            <Link className="btn ghost" to="/">
+            <Link className="btn ghost" to="/dashboard">
               Back to app
             </Link>
           ) : (
@@ -142,6 +169,7 @@ export function GuidePage() {
           )}
         </div>
       </header>
+      )}
 
       <section className="guide-hero">
         <p className="eyebrow">How to use</p>
@@ -158,34 +186,38 @@ export function GuidePage() {
             Install steps
           </a>
         </div>
+        <label className="guide-search">
+          Search the guide
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Extension, match score, privacy…" />
+        </label>
       </section>
 
       <section className="guide-section" id="features">
         <h2>Features</h2>
-        <p className="muted">Everything included in this build (Gmail sync is not included).</p>
+        <p className="muted">Tracking, capture, and an optional mailbox check for job email you connect yourself.</p>
         <div className="guide-feature-grid">
-          {FEATURES.map((f) => (
-            <article key={f.title} className="guide-feature">
-              <h3>{f.title}</h3>
-              <p>{f.detail}</p>
+          {features.map((feature) => (
+            <article key={feature.title} className="guide-feature" data-tone={feature.tone}>
+              <h3>{feature.title}</h3>
+              <p>{feature.detail}</p>
             </article>
           ))}
         </div>
+        {features.length === 0 ? <p className="muted">No guide topics match that search.</p> : null}
       </section>
 
       <section className="guide-section" id="setup">
         <h2>Setup & daily use</h2>
-        <ol className="guide-steps">
-          {STEPS.map((s) => (
-            <li key={s.n}>
-              <span className="guide-step-n">{s.n}</span>
-              <div>
-                <h3>{s.title}</h3>
-                <p>{s.body}</p>
-              </div>
-            </li>
+        <div className="guide-steps">
+          {steps.map((step) => (
+            <details key={step.n} open>
+              <summary>
+                <span className="guide-step-n">{step.n}</span> {step.title}
+              </summary>
+              <p>{step.body}</p>
+            </details>
           ))}
-        </ol>
+        </div>
       </section>
 
       <section className="guide-section" id="install-extension">
@@ -272,11 +304,25 @@ export function GuidePage() {
         </div>
       </section>
 
+      <section className="guide-section" id="job-email">
+        <h2>Reading job email</h2>
+        <ol className="guide-list">
+          <li>Use the mailbox where recruiters write to you. It can differ from your sign-in email.</li>
+          <li>Turn on 2-step verification, then create an app password named WhereMyApplication. In Gmail: Google Account → Security → App passwords.</li>
+          <li>Turn on IMAP. In Gmail: Settings → See all settings → Forwarding and POP/IMAP → Enable IMAP → Save.</li>
+          <li>In this app, open Settings → Job inbox. Choose Gmail, Outlook, Yahoo, or Other IMAP. Paste the mailbox address and the app password, not your normal password.</li>
+          <li>Save mailbox. Then open Applications → Check inbox.</li>
+        </ol>
+        <p className="muted">
+          A message updates one saved job when the company name is in the mail, or the sender matches the recruiter email on that job. Interview, offer, and rejection wording move the status. Status does not move backward, and Offer, Rejected, and Withdrawn stay put. The check reads about 21 days of inbox mail, up to 30 messages, and does not send or delete email.
+        </p>
+      </section>
+
       <section className="guide-section" id="habits">
         <h2>Recommended habit</h2>
         <ul className="guide-list">
           <li>After every apply → extension Save (or Add in the web app)</li>
-          <li>When email says interview / reject / offer → update status + note</li>
+          <li>Connect the job mailbox in Settings, then use Check inbox on Applications when new mail arrives</li>
           <li>Once a week → Dashboard → clear follow-ups</li>
           <li>Keep Profile resume text and skills updated for better match scores</li>
         </ul>
@@ -329,7 +375,7 @@ export function GuidePage() {
           Download extension
         </a>
         {user ? (
-          <Link to="/">Go to Dashboard</Link>
+          <Link to="/dashboard">Go to Dashboard</Link>
         ) : (
           <Link to="/register">Create an account</Link>
         )}

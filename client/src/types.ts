@@ -128,3 +128,12 @@ export const PRIORITY_LABELS = {
   medium: 'Medium',
   high: 'High',
 } as const;
+
+export const SOURCE_LABELS: Record<ApplicationSource, string> = {
+  linkedin: 'LinkedIn',
+  indeed: 'Indeed',
+  naukri: 'Naukri',
+  career_site: 'Career site',
+  manual: 'Manual',
+  other: 'Other',
+};

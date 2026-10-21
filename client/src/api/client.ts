@@ -11,6 +11,18 @@ export function setToken(token: string | null) {
   else localStorage.removeItem('wheremyapplication_token');
 }
 
+export class ApiError extends Error {
+  status: number;
+  payload: unknown;
+
+  constructor(message: string, status: number, payload: unknown) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.payload = payload;
+  }
+}
+
 export async function api<T>(
   path: string,
   options: RequestInit = {}
@@ -41,7 +53,7 @@ export async function api<T>(
   }
   if (!res.ok) {
     const err = (data as { error?: string })?.error || res.statusText;
-    throw new Error(err);
+    throw new ApiError(err, res.status, data);
   }
   return data as T;
 }

@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { AuthFrame } from '../components/AuthFrame';
 import { useAuth } from '../context/AuthContext';
 
 export function RegisterPage() {
@@ -11,7 +12,7 @@ export function RegisterPage() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  if (!loading && user) return <Navigate to="/" replace />;
+  if (!loading && user) return <Navigate to="/dashboard" replace />;
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -19,7 +20,7 @@ export function RegisterPage() {
     setBusy(true);
     try {
       await register(name, email, password);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {
@@ -28,7 +29,7 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="auth-page">
+    <AuthFrame>
       <div className="auth-panel">
         <p className="eyebrow">WhereMyApplication</p>
         <h1>Create account</h1>
@@ -67,9 +68,11 @@ export function RegisterPage() {
         <p className="muted">
           Already have an account? <Link to="/login">Sign in</Link>
           {' · '}
-          <Link to="/guide">How to use & download extension</Link>
+          <Link to="/#user-guide">User guide</Link>
+          {' · '}
+          <Link to="/">Back to site</Link>
         </p>
       </div>
-    </div>
+    </AuthFrame>
   );
 }

@@ -11,6 +11,14 @@ import { ProfilePage } from './pages/ProfilePage';
 import { RegisterPage } from './pages/RegisterPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { GuidePage } from './pages/GuidePage';
+import { LandingPage } from './pages/LandingPage';
+
+function GuideRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="auth-page muted">Loading…</div>;
+  if (user) return <Navigate to="/dashboard" replace />;
+  return <GuidePage />;
+}
 
 function Protected({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -22,24 +30,24 @@ function Protected({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/guide" element={<GuidePage />} />
+      <Route path="/guide" element={<GuideRoute />} />
       <Route
-        path="/"
         element={
           <Protected>
             <AppLayout />
           </Protected>
         }
       >
-        <Route index element={<DashboardPage />} />
-        <Route path="applications" element={<ApplicationsPage />} />
-        <Route path="applications/new" element={<NewApplicationPage />} />
-        <Route path="applications/:id" element={<ApplicationDetailPage />} />
-        <Route path="kanban" element={<KanbanPage />} />
-        <Route path="profile" element={<ProfilePage />} />
-        <Route path="settings" element={<SettingsPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/applications" element={<ApplicationsPage />} />
+        <Route path="/applications/new" element={<NewApplicationPage />} />
+        <Route path="/applications/:id" element={<ApplicationDetailPage />} />
+        <Route path="/kanban" element={<KanbanPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

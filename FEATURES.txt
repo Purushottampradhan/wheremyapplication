@@ -1,0 +1,224 @@
+WhereMyApplication — all features
+==================================
+
+Private, login-based job application tracker.
+Stack: React + Vite web app, Express API, MongoDB, Chrome extension (Manifest V3).
+
+Each account sees only its own applications. Status is updated by you in the web app, when the extension saves a job, or when you connect a mailbox and run Check inbox.
+
+
+1. Account and privacy
+----------------------
+- Register with name, email, and password (minimum 8 characters)
+- Sign in with email and password
+- JWT session; each user only sees their own data
+- Rate limit on register and login (40 attempts per 15 minutes)
+- Change password in Settings (current password required, new password minimum 8 characters)
+- Log out from the top bar
+- Duplicate email on register is rejected
+- Applications, timeline events, and profile belong to the logged-in user
+- Deletes remove that user's application and its timeline events
+- Optional job inbox: Settings stores an app password encrypted, and Applications → Check inbox can update status from recent mail
+
+Navigation (signed in): Dashboard, Applications, Kanban, Add, Profile, Settings, Log out.
+
+Guide page (public, /guide):
+- Feature list, setup steps, status meanings, daily habit, troubleshooting
+- Download link for the Chrome extension zip
+- Sign in / Register, or back to the app if already signed in
+
+
+2. Pipeline, sources, and priority
+----------------------------------
+Statuses:
+- Wishlist — saved, not applied
+- Applied — application submitted
+- Screening — HR / recruiter screening
+- Interview — interview scheduled or done
+- Offer — offer received
+- Rejected — not moving forward
+- Withdrawn — you withdrew
+
+Sources: LinkedIn, Indeed, Naukri, career site, manual, other.
+
+Priority: low, medium (default), high.
+
+
+3. Dashboard
+------------
+- Pipeline counts by status
+- Funnel rates: interview rate, offer rate, rejection rate
+- Applications this week and this month
+- Applications by month (last 6 months)
+- Top companies
+- Counts by source
+- Workplace mix (remote / hybrid / on-site / unknown)
+- Skills that appear most often in saved job descriptions
+- Salary insights from saved job descriptions (average, median, averages by role, recent rows)
+- Links out to Levels.fyi, Glassdoor, Indeed salary, and AmbitionBox (not scraped)
+- Recent applications
+- Recent timeline events
+- AI enrichment coverage (how many active jobs were enriched)
+- What you can improve:
+  - Missing skills, target roles, or resume URL
+  - High rejection rate (when at least 5 applications and half are rejected)
+  - Profile skills that rarely appear in saved job descriptions
+  - No interviews yet (when at least 3 applications)
+- Where to apply:
+  - Latest wishlist jobs (up to 10)
+  - LinkedIn, Indeed, and Naukri search links built from preferred roles
+- Follow-ups due
+
+
+4. Applications list
+--------------------
+- Table: role, company, location, source, applied date, status
+- AI badge when a job was enriched; High badge for high priority
+- Tags shown under the role (up to 4)
+- Workplace type shown under location
+- Click a company name to filter to that company
+- Inline status dropdown (saves immediately)
+- Search across role, company, location, notes, tags, required skills, and AI summary
+- Filters: status, source, priority, archived (active only / archived only / both)
+- Group by company, status, or source
+- Sort: newest applied, recently updated, company A–Z
+- Select rows (one or all in the current table)
+- Bulk actions on the selection (up to 100): set status, set priority, archive, delete (with confirm)
+- Export CSV of active (non-archived) applications
+- Add application button
+- Empty state when nothing matches
+
+CSV columns: company, roleTitle, location, status, source, priority, workplaceType, employmentType, salaryRange, requiredSkills, appliedAt, jobUrl, aiSummary, notes
+
+
+5. Add and edit an application
+------------------------------
+Manual add (when the extension cannot read the page): company, role, location, job URL, source, status, notes.
+
+Application detail — edit and save:
+role, company, location, job URL, source, status, priority, salary, employment type, workplace type, experience level, follow-up date, application deadline, notes, job description, required skills, preferred skills, tags, responsibilities, requirements, benefits, company description, industry, company size, recruiter name, recruiter email.
+
+Also on the detail page:
+- AI summary panel when enrichment produced one
+- Resume ↔ JD match panel: score out of 100, summary, matched skills, missing skills, suggestions
+- Buttons: Resume↔JD match, AI enrich, Delete
+- Timeline of created, status change, note, and extension capture events
+- Add a dated note to the timeline
+- Follow-up date defaults to 7 days after the apply date on create
+
+Archive:
+- Archived jobs are hidden from the default list, dashboard stats, Kanban, salary insights, and CSV export
+- Show archived only, or active plus archived, from the Applications filters
+- Bulk archive from the list
+
+
+6. Kanban
+---------
+- Columns: Wishlist, Applied, Screening, Interview, Offer, Rejected (Withdrawn is not a column)
+- Drag a card to another column to update status immediately
+- Card shows role, company, and match score when one exists
+- Link from a card to the application detail page
+- Link back to the list view
+
+
+7. Profile
+----------
+- Name
+- Skills (comma separated)
+- Preferred roles
+- Preferred locations
+- Years of experience
+- Resume URL
+- Resume text (plain text paste) — used for match scores and auto-match on save
+
+
+8. Chrome extension
+-------------------
+Name: WhereMyApplication Capture. Version 1.6.1. Manifest V3 side panel (stays open while you browse).
+
+- Toolbar icon opens the side panel
+- Sign in with the same email and password as the web app
+- Set API base (local http://127.0.0.1:5080 or a deployed API URL)
+- Set web app URL (local or deployed site)
+- Test API connection before signing in
+- Shows who is signed in
+- Page hint for the focused tab
+- Choose status when saving: Applied, Wishlist / save for later, or Screening
+- Save this job from the current tab
+- Optional auto-capture when LinkedIn Easy Apply reports the application was sent (on by default; saves as Applied; skips duplicates)
+- Log out
+- Open dashboard link in a new tab
+- If the page does not look like a job, you confirm before saving
+- If the job is already tracked (same URL or same company + role), you can confirm Save anyway or skip
+
+Sites: any job detail page, including LinkedIn, Indeed, Naukri, Greenhouse, Lever, Workday, and company career pages. LinkedIn Easy Apply uses a content script on linkedin.com/jobs/*.
+
+On save, scraped job fields plus page title and page text are sent. The API can fill missing fields with Groq when an API key is configured.
+
+Permissions: storage, activeTab, scripting, sidePanel, tabs, plus host access for the local API and http/https pages.
+
+Install: chrome://extensions → Developer mode → Load unpacked → extension folder. Or download the zip from the Guide page, unzip, then Load unpacked. Pin the extension.
+
+Not included in the extension: reading your inbox. Later status changes are done in the web app, on the Kanban board, or by Check inbox after you connect a mailbox in Settings.
+
+
+9. AI enrich, match score, and insights
+---------------------------------------
+Groq is optional. Without GROQ_API_KEY, captures still save scraped fields. AI enrich and resume match are skipped until a key is set.
+
+AI enrich runs when a job is created with page text (enrich on), or when you click AI enrich on the detail page. It fills gaps and keeps existing scraped values:
+company, role, location, salary range, employment type, workplace type, experience level, required skills, preferred skills, tags, responsibilities, requirements, benefits, company description, industry, company size, recruiter name and email, application deadline, job description, and a short AI summary.
+
+The detail page shows when the job was last enriched. The applications list shows an AI badge.
+
+Resume ↔ job description match needs resume text on Profile (or a skills list) and Groq configured.
+- On create, if resume text is long enough or skills exist, a match score is computed automatically
+- On the detail page, Resume↔JD match runs it again
+- Stored: score 0–100, summary, matched skills, missing skills, strengths, gaps, suggestions
+- Kanban cards show the score when one exists
+
+Salary insights are parsed from salary text already saved (examples: "$120k-$150k", "15-20 LPA"). Dashboard shows how many salaries could be parsed, average, median, average by role, and recent rows with a salary. External links (not scraped): Levels.fyi, Glassdoor, Indeed salary, AmbitionBox.
+
+Follow-ups: new applications get a follow-up date 7 days after the apply date unless you set one. Dashboard lists follow-ups that are due.
+
+
+10. API
+-------
+Base path: /api. Bearer JWT on every route except register, login, and health.
+
+GET  /api/health
+
+POST /api/auth/register          name, email, password
+POST /api/auth/login             email, password
+GET  /api/auth/me                current user
+POST /api/auth/change-password   current password, new password
+
+GET  /api/profile                name + profile
+PUT  /api/profile                name, skills, preferred roles, preferred locations, experience years, resume URL, resume text
+GET  /api/profile/insights       improvement tips and where-to-apply links
+
+GET  /api/dashboard/stats        status counts, week/month totals, funnel rates, recent applications, recent timeline events, by source, by company, by workplace, top skills, enrichment coverage, 6-month trend, salary insights, whether Groq is configured
+
+GET    /api/applications
+       filters: status, source, search, company, workplaceType, employmentType, priority, archived (true | all | default active)
+       sort: appliedAt | updatedAt | company | priority
+       groupBy: company | status | source
+       limit 500
+POST   /api/applications         create; duplicate check unless forceDuplicate is true; optional page text + AI enrich; auto match score; timeline event created or extension_capture (header x-client: extension); default follow-up 7 days after appliedAt
+POST   /api/applications/bulk    ids (1–100) plus action: status | archive | unarchive | priority | delete
+GET    /api/applications/export.csv
+GET    /api/applications/follow-ups
+GET    /api/applications/:id
+GET    /api/applications/:id/timeline
+PUT    /api/applications/:id
+PATCH  /api/applications/:id/status
+POST   /api/applications/:id/notes
+POST   /api/applications/:id/enrich
+POST   /api/applications/:id/match
+DELETE /api/applications/:id
+
+Duplicate detection: on create, if forceDuplicate is not set, the API looks for an active application with the same job URL, or the same company and role (case-insensitive). A match returns HTTP 409 with the existing record. Send forceDuplicate: true to save anyway.
+
+Timeline event types: created, status_change, note, extension_capture.
+
+Data stored per application: company, role title, location, job URL, source, status, applied date, last status date, notes, salary range, job description, external job id, follow-up date, employment type, workplace type, experience level, required skills, preferred skills, responsibilities, requirements, benefits, company description, industry, company size, recruiter name, recruiter email, application deadline, page title, page text, AI summary, raw AI extraction, AI enriched time, tags, priority, archived flag, match score, match details, match computed time, created and updated times.

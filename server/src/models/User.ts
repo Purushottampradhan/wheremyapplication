@@ -9,11 +9,24 @@ export type UserProfile = {
   resumeText: string;
 };
 
+export type InboxProvider = 'gmail' | 'outlook' | 'yahoo' | 'imap';
+
+export type UserInbox = {
+  provider: InboxProvider;
+  email: string;
+  passwordEnc: string;
+  host: string;
+  port: number;
+  lastSyncAt?: Date | null;
+  seenMessageIds: string[];
+};
+
 export type UserAttrs = {
   email: string;
   passwordHash: string;
   name: string;
   profile?: UserProfile;
+  inbox?: UserInbox;
 };
 
 const profileSchema = new Schema(
@@ -34,6 +47,15 @@ const userSchema = new Schema(
     passwordHash: { type: String, required: true },
     name: { type: String, required: true, trim: true },
     profile: { type: profileSchema, default: () => ({}) },
+    inbox: {
+      provider: { type: String, enum: ['gmail', 'outlook', 'yahoo', 'imap'], default: 'gmail' },
+      email: { type: String, default: '' },
+      passwordEnc: { type: String, default: '' },
+      host: { type: String, default: '' },
+      port: { type: Number, default: 993 },
+      lastSyncAt: { type: Date, default: null },
+      seenMessageIds: { type: [String], default: [] },
+    },
   },
   { timestamps: true }
 );

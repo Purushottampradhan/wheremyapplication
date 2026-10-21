@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.js';
 import applicationRoutes from './routes/applications.js';
 import profileRoutes from './routes/profile.js';
 import dashboardRoutes from './routes/dashboard.js';
+import inboxRoutes from './routes/inbox.js';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -49,6 +50,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/inbox', inboxRoutes);
 
 app.use(
   (

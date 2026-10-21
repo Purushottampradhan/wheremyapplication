@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { AuthFrame } from '../components/AuthFrame';
 import { useAuth } from '../context/AuthContext';
 
 export function LoginPage() {
@@ -10,7 +11,7 @@ export function LoginPage() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  if (!loading && user) return <Navigate to="/" replace />;
+  if (!loading && user) return <Navigate to="/dashboard" replace />;
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -18,7 +19,7 @@ export function LoginPage() {
     setBusy(true);
     try {
       await login(email, password);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -27,7 +28,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="auth-page">
+    <AuthFrame>
       <div className="auth-panel">
         <p className="eyebrow">WhereMyApplication</p>
         <h1>Sign in</h1>
@@ -61,9 +62,11 @@ export function LoginPage() {
         <p className="muted">
           No account? <Link to="/register">Create one</Link>
           {' · '}
-          <Link to="/guide">How to use & download extension</Link>
+          <Link to="/#user-guide">User guide</Link>
+          {' · '}
+          <Link to="/">Back to site</Link>
         </p>
       </div>
-    </div>
+    </AuthFrame>
   );
 }
