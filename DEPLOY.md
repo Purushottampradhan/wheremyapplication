@@ -31,10 +31,12 @@ Put the `WhereMyApplication/` folder (or the monorepo root that contains `client
 |-----|--------|
 | `MONGODB_URI` | Your Atlas connection string |
 | `JWT_SECRET` | Long random string |
-| `CLIENT_URL` | `https://wheremyapplication-web.onrender.com` (your web service URL, no trailing slash) |
+| `CLIENT_URL` | Hub path OK: `https://YOURDOMAIN/wma` (CORS uses the origin only) |
+| `CORS_ORIGINS` | Comma-separated origins, e.g. `https://YOURDOMAIN,https://YOUR-SITE.netlify.app` |
+| `CHROME_EXTENSION_IDS` | Required in production — comma-separated extension IDs |
 | `GROQ_API_KEY` | From [console.groq.com](https://console.groq.com) |
 | `GROQ_MODEL` | `openai/gpt-oss-20b` (or another Groq model you use) |
-| `CORS_ORIGINS` | Optional comma-separated extras; `.onrender.com` is already allowed in code |
+| `CORS_ALLOW_RENDER` | Leave `false` unless you temporarily need `*.onrender.com` frontends |
 
 ### Web env (`wheremyapplication-web`)
 

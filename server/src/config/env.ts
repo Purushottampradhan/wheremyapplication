@@ -41,7 +41,11 @@ export const env = {
     'MONGODB_URI',
     'mongodb://127.0.0.1:27017/WhereMyApplication'
   ),
-  jwtSecret: required('JWT_SECRET', 'dev-jwt-secret-change-me'),
+  jwtSecret:
+    process.env.NODE_ENV === 'production'
+      ? required('JWT_SECRET')
+      : required('JWT_SECRET', 'dev-jwt-secret-change-me'),
+  // May include a path (e.g. https://domain/wma) for links; CORS uses URL origin only.
   clientUrl: (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, ''),
   corsOrigins: (process.env.CORS_ORIGINS || '')
     .split(',')

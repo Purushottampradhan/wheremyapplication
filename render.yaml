@@ -1,5 +1,5 @@
 # Blueprint: https://dashboard.render.com/blueprints
-# Connect the GitHub repo whose root is this project folder.
+# API only — frontend is served from site-hub on Netlify at /wma/
 
 services:
   - type: web
@@ -21,20 +21,13 @@ services:
         sync: false
       - key: CLIENT_URL
         sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: CHROME_EXTENSION_IDS
+        sync: false
+      - key: CORS_ALLOW_RENDER
+        value: "false"
       - key: GROQ_API_KEY
         sync: false
       - key: GROQ_MODEL
         value: openai/gpt-oss-20b
-
-  - type: web
-    name: wheremyapplication-web
-    runtime: node
-    plan: free
-    rootDir: client
-    buildCommand: npm install && npm run build
-    startCommand: npm start
-    envVars:
-      - key: NODE_VERSION
-        value: "20"
-      - key: VITE_API_URL
-        sync: false

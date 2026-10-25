@@ -14,6 +14,8 @@ export const APPLICATION_SOURCES = [
   'linkedin',
   'indeed',
   'naukri',
+  'wellfound',
+  'instahyre',
   'career_site',
   'manual',
   'other',
