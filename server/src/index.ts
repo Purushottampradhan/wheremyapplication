@@ -49,7 +49,12 @@ app.use(
       if (origin.startsWith('chrome-extension://')) {
         const id = origin.slice('chrome-extension://'.length).split('/')[0];
         const allowedIds = extensionIds();
-        if (env.nodeEnv !== 'production') {
+        // Dev, or public unpacked installs: CHROME_EXTENSION_IDS=* (IDs differ per machine)
+        if (
+          env.nodeEnv !== 'production' ||
+          process.env.CHROME_EXTENSION_ALLOW_ALL === 'true' ||
+          allowedIds.has('*')
+        ) {
           return callback(null, true);
         }
         if (allowedIds.size === 0) {

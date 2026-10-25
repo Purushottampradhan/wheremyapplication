@@ -1,5 +1,5 @@
-const DEFAULT_API = 'http://127.0.0.1:5080';
-const DEFAULT_WEB = 'http://127.0.0.1:5173';
+const DEFAULT_API = 'https://wheremyapplication-api.onrender.com';
+const DEFAULT_WEB = 'https://purushottampradhan.online/wma';
 
 const loginView = document.getElementById('loginView');
 const mainView = document.getElementById('mainView');
@@ -182,8 +182,9 @@ function scrapeJobInPage() {
   if (host.includes('linkedin.com')) source = 'linkedin';
   else if (host.includes('indeed.')) source = 'indeed';
   else if (host.includes('naukri.com') || host.includes('foundit.')) source = 'naukri';
-  else if (host.includes('glassdoor.')) source = 'glassdoor';
   else if (host.includes('wellfound.') || host.includes('angel.co')) source = 'wellfound';
+  else if (host.includes('instahyre.com')) source = 'instahyre';
+  else if (host.includes('glassdoor.')) source = 'glassdoor';
   else if (host.includes('greenhouse.io') || host.includes('boards.greenhouse'))
     source = 'greenhouse';
   else if (host.includes('lever.co')) source = 'lever';
@@ -268,6 +269,41 @@ function scrapeJobInPage() {
       '.dang-inner-html',
       '.job-desc',
     ]);
+  } else if (source === 'wellfound') {
+    roleTitle =
+      firstText(['h1', '[data-test="JobTitle"]', '[class*="job-title" i]']) || meta('og:title');
+    company =
+      firstText(['[data-test="StartupLink"]', 'a[href*="/company/"]', '[class*="company" i] a']) ||
+      meta('og:site_name');
+    loc = firstText(['[class*="location" i]', '[data-test="JobLocation"]']);
+    jobDescription = firstText(['[class*="description" i]', 'article', 'main']);
+    externalJobId = (location.pathname.match(/\/jobs\/([^/?#]+)/) || [])[1] || '';
+  } else if (source === 'instahyre') {
+    roleTitle =
+      firstText([
+        'h1',
+        '.opportunity-detail h1',
+        '[class*="job-title" i]',
+        '[class*="JobTitle"]',
+      ]) || meta('og:title');
+    company =
+      firstText([
+        '.opportunity-detail .company-name',
+        '[class*="company-name" i]',
+        'a[href*="/company/"]',
+      ]) || meta('og:site_name');
+    loc = firstText(['[class*="location" i]', '.opportunity-location', '.job-location']);
+    jobDescription = firstText([
+      '.opportunity-detail .job-description',
+      '[class*="job-description" i]',
+      '.opportunity-description',
+      'article',
+      'main',
+    ]);
+    externalJobId =
+      (location.pathname.match(/\/job-?(\d+)/i) || [])[1] ||
+      new URLSearchParams(location.search).get('job') ||
+      '';
   } else if (source === 'greenhouse') {
     roleTitle = firstText(['h1.app-title', 'h1']) || meta('og:title');
     company =
@@ -356,7 +392,9 @@ function scrapeJobInPage() {
     Boolean(document.querySelector('a[href*="apply" i], button[class*="apply" i]')),
   ];
   const confidence = jobSignals.filter(Boolean).length;
-  const looksLikeJob = confidence >= 2 || ['linkedin', 'indeed', 'naukri'].includes(source);
+  const looksLikeJob =
+    confidence >= 2 ||
+    ['linkedin', 'indeed', 'naukri', 'wellfound', 'instahyre'].includes(source);
 
   return {
     company: (company || 'Unknown company').slice(0, 200),
@@ -493,10 +531,25 @@ if (easyApplyToggle) {
   });
 }
 
+const API_SOURCES = new Set([
+  'linkedin',
+  'indeed',
+  'naukri',
+  'wellfound',
+  'instahyre',
+  'career_site',
+  'manual',
+  'other',
+]);
+
+function normalizeApiSource(source) {
+  return API_SOURCES.has(source) ? source : 'career_site';
+}
+
 async function postApplication(payload, { forceDuplicate = false } = {}) {
   const stored = await chrome.storage.local.get(['token', 'apiBase']);
   if (!stored.token) throw new Error('Not logged in — sign in first');
-  const body = { ...payload, forceDuplicate };
+  const body = { ...payload, forceDuplicate, source: normalizeApiSource(payload.source) };
   delete body.captureMeta;
   const res = await apiFetch(normalizeApiBase(stored.apiBase), '/api/applications', {
     method: 'POST',

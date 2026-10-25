@@ -98,8 +98,10 @@ const STEPS = [
     title: 'Sign in on the side panel',
     body: (
       <>
-        Set API base to your API (<code>http://127.0.0.1:5080</code> locally, or your Render URL).
-        Set Web app URL to this site. Sign in with the same email/password. Leave Easy Apply
+        API base defaults to{' '}
+        <code>https://wheremyapplication-api.onrender.com</code> (use{' '}
+        <code>http://127.0.0.1:5080</code> only for local API). Web app URL defaults to this site
+        (<code>/wma</code> on the portfolio). Sign in with the same email/password. Leave Easy Apply
         auto-capture on if you want LinkedIn auto-saves.
       </>
     ),

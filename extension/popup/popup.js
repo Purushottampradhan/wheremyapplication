@@ -1,4 +1,4 @@
-const DEFAULT_API = 'http://127.0.0.1:5080';
+const DEFAULT_API = 'https://wheremyapplication-api.onrender.com';
 
 const loginView = document.getElementById('loginView');
 const mainView = document.getElementById('mainView');
@@ -60,7 +60,9 @@ function scrapeJobInPage() {
   let source = 'career_site';
   if (host.includes('linkedin.com')) source = 'linkedin';
   else if (host.includes('indeed.')) source = 'indeed';
-  else if (host.includes('naukri.com')) source = 'naukri';
+  else if (host.includes('naukri.com') || host.includes('foundit.')) source = 'naukri';
+  else if (host.includes('wellfound.') || host.includes('angel.co')) source = 'wellfound';
+  else if (host.includes('instahyre.com')) source = 'instahyre';
 
   let roleTitle = '';
   let company = '';
@@ -115,6 +117,30 @@ function scrapeJobInPage() {
     jobDescription = text(
       document.querySelector('.styles_job-desc-container__, .dang-inner-html')
     );
+  } else if (source === 'wellfound') {
+    roleTitle =
+      text(document.querySelector('h1, [data-test="JobTitle"]')) || meta('og:title');
+    company =
+      text(document.querySelector('[data-test="StartupLink"], a[href*="/company/"]')) ||
+      meta('og:site_name');
+    loc = text(document.querySelector('[class*="location" i], [data-test="JobLocation"]'));
+    jobDescription = text(document.querySelector('[class*="description" i], article, main'));
+  } else if (source === 'instahyre') {
+    roleTitle =
+      text(document.querySelector('h1, .opportunity-detail h1, [class*="job-title" i]')) ||
+      meta('og:title');
+    company =
+      text(
+        document.querySelector(
+          '.opportunity-detail .company-name, [class*="company-name" i], a[href*="/company/"]'
+        )
+      ) || meta('og:site_name');
+    loc = text(document.querySelector('[class*="location" i], .opportunity-location'));
+    jobDescription = text(
+      document.querySelector(
+        '.opportunity-detail .job-description, [class*="job-description" i], article, main'
+      )
+    );
   } else {
     roleTitle = meta('og:title') || text(document.querySelector('h1')) || document.title;
     company = meta('og:site_name') || host.replace(/^www\./, '').split('.')[0];
@@ -156,7 +182,7 @@ function setViews(session) {
   if (session?.user) {
     userLine.textContent = `Signed in as ${session.user.name || session.user.email}`;
   }
-  dashboardLink.href = 'http://127.0.0.1:5173';
+  dashboardLink.href = 'https://purushottampradhan.online/wma';
   if (apiInput) apiInput.value = apiBase;
 }
 
